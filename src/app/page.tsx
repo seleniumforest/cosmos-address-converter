@@ -1,95 +1,56 @@
-import Image from 'next/image'
-import styles from './page.module.css'
+'use client';
+import { fromBech32, toBech32 } from '@cosmjs/encoding';
+import { useState } from 'react'
+
+
+function tryConvert(address: string, targetPrefix: string): string {
+  if (targetPrefix === "")
+    return "";
+
+  try {
+    let bech32 = fromBech32(address);
+    return toBech32(targetPrefix, bech32.data);
+  } catch { }
+
+  return "";
+}
 
 export default function Home() {
+  let [userAddress, setUserAddress] = useState("cosmos1xtejvu7d53fl8ux68ghkv22wxhcsm58sa9dcne");
+  let [prefixes, setPrefixes] = useState(["osmo", "celestia"]);
+
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore the Next.js 13 playground.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+    <>
+      <input
+        style={{ "width": "330px"}}
+        placeholder='Paste your cosmos/osmosis/celestia/etc address'
+        onChange={(e) => setUserAddress(e.target.value)} value={userAddress} />
+      <br />
+      {prefixes.map((prefix, ind) => {
+        return (
+          <div key={ind}>
+            <div style={{ display: "inline-block" }} key={prefix}>
+              <input
+                value={prefix}
+                autoFocus
+                style={{ width: "330px", marginRight: "10px"}}
+                onChange={(e) => {
+                  let newPrefixes = [...prefixes];
+                  newPrefixes[ind] = e.target.value;
+                  setPrefixes(newPrefixes);
+                }}
+              />
+              <label>{tryConvert(userAddress, prefix)}</label>
+            </div>
+          </div>
+        )
+      })}
+      <br />
+      <button onClick={() => {
+        let newPrefixes = [...prefixes];
+        newPrefixes.push("");
+        setPrefixes(newPrefixes);
+      }}>Add</button>
+    </>
   )
 }
